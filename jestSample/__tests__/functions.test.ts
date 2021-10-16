@@ -28,9 +28,22 @@ describe("Simple asyncSumOfArray test", () => {
 
 describe('asyncSumOfArraySometimesZero test', () => {
     test('Check nominal', () => {
-        const db = new DammyDatabase();
-        return asyncSumOfArraySometimesZero([0,1], db).then(data => {
-            expect(data).toBe(1);
+        const dbSuccessMock = jest.fn();
+        const dbFailMock = jest.fn();
+        dbSuccessMock.mockImplementationOnce(() => {
+            return {
+                save: () :void => {}
+            };
         });
+        dbFailMock.mockImplementationOnce(() => {
+            return {
+                save: () :void => {
+                    throw new Error("fail");
+                }
+            };
+        });
+
+        expect(asyncSumOfArraySometimesZero([0,1], new dbSuccessMock)).resolves.toBe(1);
+        expect(asyncSumOfArraySometimesZero([0,1], new dbFailMock)).resolves.toBe(0);
     });
 })

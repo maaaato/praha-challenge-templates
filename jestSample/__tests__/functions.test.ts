@@ -1,28 +1,28 @@
 // todo: ここに単体テストを書いてみましょう！
 const fn = require('../functions.ts');
 
-describe("Simple sumOfArray test", () => {
-    test('Check nominal', () => {
+describe("sumOfArray test", () => {
+    test('Check normal', () => {
         expect(fn.sumOfArray([1,2])).toBe(3);
-        expect(fn.sumOfArray([1,1])).toBe(2);
         expect(fn.sumOfArray([1])).toBe(1);
+        expect(fn.sumOfArray([])).toBe(0);
     });
 });
 
-describe("Simple asyncSumOfArray test", () => {
-    test('Check nominal', () => {
-        return fn.asyncSumOfArray([1,2]).then((data:number) => {
-            expect(data).toBe(3);
-        });
+describe("asyncSumOfArray test", () => {
+    test('Check normal', () => {
+        expect(fn.asyncSumOfArray([1,2])).resolves.toBe(3);
+        expect(fn.asyncSumOfArray([1])).resolves.toBe(1);
+        expect(fn.asyncSumOfArray([])).resolves.toBe(0);
     });
-    test('Check non-nominal', () => {
-        expect.assertions(1);
-        return expect(fn.asyncSumOfArray([])).rejects.toThrow();
-    });
+    // 空の配列を渡した場合は初期値0を設定するため、例外が発生しないので以下のテストをskipする
+    // test('Check non-normal', () => {
+    //     expect(fn.asyncSumOfArray([])).rejects.toThrow();
+    // });
 });
 
 describe('asyncSumOfArraySometimesZero test', () => {
-    test('Check nominal', () => {
+    test('Check normal', () => {
         const dbMock = jest
         .fn()
         .mockImplementationOnce(() => {
@@ -44,19 +44,25 @@ describe('asyncSumOfArraySometimesZero test', () => {
 });
 
 describe('getFirstNameThrowIfLong test', () => {
-    test('Check nominal', () => {
-        const NameApiMock = jest
-        .fn(() => {
-            return {
-                getFirstName () :Promise<string>{
-                    return new Promise((resolve) => {
-                            resolve("ABCD");
-                      });
-                }
-            };
-        });
-
+    const NameApiMock = jest
+    // mockのデフォルトとして以下のmockを設定することで何度呼ばれてもデフォルト値が返る
+    .fn(() => {
+        return {
+            getFirstName () :Promise<string>{
+                return new Promise((resolve) => {
+                        resolve("ABCD");
+                    });
+            }
+        };
+    });
+    test('Check normal', () => {
         expect(fn.getFirstNameThrowIfLong(5, NameApiMock())).resolves.toEqual("ABCD");
+    });
+    test('Check non-normal', () => {
         expect(fn.getFirstNameThrowIfLong(3, NameApiMock())).rejects.toStrictEqual(new Error("first_name too long"));
     });
+})
+
+describe('load config test', () => {
+    
 })
